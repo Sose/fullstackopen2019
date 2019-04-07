@@ -22,7 +22,6 @@ const BestAnecdote = ({ anecdotes, votes }) => {
 
 const App = props => {
   const [selected, setSelected] = useState(0);
-
   // all votes start at 0
   const initialVotes = Array.from({ length: props.anecdotes.length }, _ => 0);
   const [votes, setVotes] = useState(initialVotes);

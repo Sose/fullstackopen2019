@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ReactDOM from 'react-dom';
 
 const Person = ({ person }) => (
@@ -49,15 +50,20 @@ const PersonForm = ({
 );
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Martti Tienari', number: '040-123456' },
-    { name: 'Arto Järvinen', number: '040-123456' },
-    { name: 'Lea Kutvonen', number: '040-123456' },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [filter, setFilter] = useState('');
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
+
+  useEffect(() => {
+    console.log('effect');
+    axios
+      .get('http://localhost:3001/persons')
+      .then(res => {
+        console.log('promise fulfilled', res);
+        setPersons(res.data);
+      })
+  }, [])
 
   const handleNameChange = e => {
     setNewName(e.target.value);

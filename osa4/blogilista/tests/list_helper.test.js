@@ -65,10 +65,11 @@ const listWithOneBlog = [
     _id: '5a422aa71b54a676234d17f8',
     title: 'Go To Statement Considered Harmful',
     author: 'Edsger W. Dijkstra',
-    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    url:
+      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
-    __v: 0
-  }
+    __v: 0,
+  },
 ];
 
 describe('total likes', () => {
@@ -111,5 +112,34 @@ describe('favorite blog', () => {
     };
 
     expect(result).toEqual(expected);
+  });
+});
+
+describe('most blogs', () => {
+  test('empty list returns undefined..?', () => {
+    const result = listHelper.mostBlogs([]);
+    expect(result).toEqual(undefined);
+  });
+
+  test('list with one blog returns the author of that blog', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog);
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', blogs: 1 });
+  });
+
+  test('list with multiple blogs returns the one with most blogs (and how many)', () => {
+    const result = listHelper.mostBlogs(blogs);
+    expect(result).toEqual({ author: 'Robert C. Martin', blogs: 3 });
+  });
+});
+
+describe('most likes', () => {
+  test('list with one blog returns the right result', () => {
+    const result = listHelper.mostLikes(listWithOneBlog);
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 5 });
+  });
+
+  test('list with multiple blogs returns the right result', () => {
+    const result = listHelper.mostLikes(blogs);
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 });
   });
 });

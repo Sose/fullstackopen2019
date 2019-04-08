@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import ReactDOM from 'react-dom';
+
+import personService from './services/persons';
 
 const Person = ({ person }) => (
   <div>
@@ -8,7 +9,7 @@ const Person = ({ person }) => (
   </div>
 );
 
-const FilteredPersons = ({ persons, filter }) => {
+const FilteredPersons = ({ persons, filter, onDeleteClick }) => {
   const personsToShow = persons.filter(p =>
     p.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -16,7 +17,10 @@ const FilteredPersons = ({ persons, filter }) => {
   return (
     <div>
       {personsToShow.map(p => (
-        <Person key={p.name} person={p} />
+        <div key={p.id}>
+          <Person person={p} />
+          <button onClick={onDeleteClick(p.id)}>poista</button>
+        </div>
       ))}
     </div>
   );
@@ -56,14 +60,11 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
 
   useEffect(() => {
-    console.log('effect');
-    axios
-      .get('http://localhost:3001/persons')
-      .then(res => {
-        console.log('promise fulfilled', res);
-        setPersons(res.data);
-      })
-  }, [])
+    personService.getAll().then(res => {
+      console.log('promise fulfilled', res);
+      setPersons(res.data);
+    });
+  }, []);
 
   const handleNameChange = e => {
     setNewName(e.target.value);
@@ -77,23 +78,56 @@ const App = () => {
     setFilter(e.target.value);
   };
 
+  const onDeleteClick = id => () => {
+    console.log('deleteClick', id);
+    const { name } = persons.find(p => p.id === id);
+    const confirmation = window.confirm(`Poistetaanko ${name}?`);
+
+    if (confirmation) {
+      personService.remove(id).then(res => {
+        let newPersons = [...persons];
+        newPersons = newPersons.filter(p => p.name !== name);
+        setPersons(newPersons);
+      });
+    }
+  };
+
   const addPerson = e => {
     e.preventDefault();
+
+    // if there's no name given, abort
     if (newName === '') return;
 
-    // does the name already exist?
+    const newPerson = { name: newName, number: newNumber };
+
     const found = persons.find(person => person.name === newName);
     if (found) {
-      alert(`${newName} on jo luettelossa`);
-      console.log(`person ${newName} already exists, aborting`);
+      // update existing person
+      const confirmation = window.confirm(`${found.name} on jo luettelossa, korvataanko numero uudella?`);
+      if (confirmation) {
+        personService
+          .update(found.id, newPerson)
+          .then(res => {
+            console.log('update res', res)
+            let newPersons = [...persons];
+            const { name, number, id } = res.data;
+            const index = newPersons.indexOf(found);
+            newPersons[index] = { name, number, id }
+            setPersons(newPersons)
+            setNewName('')
+            setNewNumber('')
+          })
+      }
     } else {
-      let newPersons = [...persons];
-      newPersons.push({ name: newName, number: newNumber });
-      setPersons(newPersons);
-      setNewName('');
-      setNewNumber('');
-
-      console.log(`added person ${newName} with number ${newNumber}`);
+      // add a new person
+      personService.create(newPerson).then(res => {
+        let newPersons = [...persons];
+        const { name, number, id } = res.data;
+        newPersons.push({ name, number, id });
+        setPersons(newPersons);
+        setNewName('');
+        setNewNumber('');
+      });
     }
   };
 
@@ -111,7 +145,11 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h3>Numerot</h3>
-      <FilteredPersons persons={persons} filter={filter} />
+      <FilteredPersons
+        persons={persons}
+        filter={filter}
+        onDeleteClick={onDeleteClick}
+      />
     </div>
   );
 };

@@ -77,43 +77,34 @@ const mostLikes = blogs => {
   return most;
 };
 
-const blogsByAuthor_ = blogs => _.countBy(blogs, blog => blog.author);
-
 const mostBlogs_ = blogs => {
   if (!Array.isArray(blogs) || blogs.length === 0) return undefined;
 
-  const byAuthor = blogsByAuthor_(blogs);
-
-  //pairs will be like [author, blogs]
-  const pairs = _.toPairs(byAuthor);
-  const most = _.orderBy(pairs, [pair => pair[1]], ['desc'])[0];
-  return {
-    author: most[0],
-    blogs: most[1],
-  };
+  return _.chain(blogs)
+    .countBy(blog => blog.author)
+    .toPairs()
+    .maxBy(pair => pair[1])
+    .thru(pair => ({ author: pair[0], blogs: pair[1] }))
+    .value();
 };
 
+// example input is
+// [{ author: 'someone', likes: 14, ...}, { author: 'else', likes: 3, ...}, ...]
 const mostLikes_ = blogs => {
-  const likesByAuthor = _.reduce(
-    blogs,
-    (o, current) => {
-      const { author, likes } = current;
-
-      if (!o[author]) {
-        return { ...o, [author]: likes };
-      }
-      return { ...o, [author]: o[author] + likes };
-    },
+  
+  const likesByAuthor = blogs.reduce(
+    (acc, { author, likes }) => ({
+      ...acc,
+      [author]: (acc[author] || 0) + likes,
+    }),
     {}
   );
 
-  const pairs = _.toPairs(likesByAuthor);
-  const most = _.orderBy(pairs, [pair => pair[1]], ['desc'])[0];
-
-  return {
-    author: most[0],
-    likes: most[1],
-  };
+  return _.chain(likesByAuthor)
+    .toPairs()
+    .maxBy(pair => pair[1])
+    .thru(pair => ({ author: pair[0], likes: pair[1] }))
+    .value();
 };
 
 module.exports = {

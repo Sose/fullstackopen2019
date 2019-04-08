@@ -177,7 +177,10 @@ const App = () => {
           message: `Lisättiin ${name} numerolla ${number}`,
           type: 'notification'
         }, 3000);
-      });
+      }).catch(err => {
+        const errorMsg = err.response.data.error;
+        showNotification({ message: errorMsg, type: 'error'}, 5000);
+      })
     }
   };
 

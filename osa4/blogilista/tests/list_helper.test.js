@@ -132,6 +132,23 @@ describe('most blogs', () => {
   });
 });
 
+describe('most blogs with lodash', () => {
+  test('empty list returns undefined..?', () => {
+    const result = listHelper.mostBlogs_([]);
+    expect(result).toEqual(undefined);
+  });
+
+  test('list with one blog returns the author of that blog', () => {
+    const result = listHelper.mostBlogs_(listWithOneBlog);
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', blogs: 1 });
+  });
+
+  test('list with multiple blogs returns the one with most blogs (and how many)', () => {
+    const result = listHelper.mostBlogs_(blogs);
+    expect(result).toEqual({ author: 'Robert C. Martin', blogs: 3 });
+  });
+});
+
 describe('most likes', () => {
   test('list with one blog returns the right result', () => {
     const result = listHelper.mostLikes(listWithOneBlog);
@@ -140,6 +157,18 @@ describe('most likes', () => {
 
   test('list with multiple blogs returns the right result', () => {
     const result = listHelper.mostLikes(blogs);
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 });
+  });
+});
+
+describe('most likes with lodash', () => {
+  test('list with one blog returns the right result', () => {
+    const result = listHelper.mostLikes_(listWithOneBlog);
+    expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 5 });
+  });
+
+  test('list with multiple blogs returns the right result', () => {
+    const result = listHelper.mostLikes_(blogs);
     expect(result).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 });
   });
 });

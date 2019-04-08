@@ -1,0 +1,14 @@
+käyttäjä->selain: käyttäjä kirjoittaa noten ja painaa "talleta"
+selain->palvelin: 
+note right of selain
+POST https://fullstack-exampleapp.herokuapp.com/new_note
+tietona form datassa uuden noten sisältö
+end note
+palvelin->selain: 302 Found
+selain->palvelin:
+note right of selain
+selain lataa sivun uudestaan
+kts. aiempi kaavio
+end note
+palvelin->selain: vastaus
+selain->käyttäjä: käyttäjä näkee päivitetyn sivun, jossa nyt myös uusi note

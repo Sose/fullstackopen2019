@@ -1,0 +1,20 @@
+käyttäjä->selain: käyttäjä kirjoittaa noten ja painaa "talleta"
+selain->käyttäjä:
+note left of selain
+selain suorittaa javascriptin, kun submit-nappia painetaan
+selain piirtää notet uudestaan, lisäten uuden noten perään
+
+käyttäjä näkee uuden noten
+end note
+selain->palvelin: 
+note right of selain
+POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+tietona request payloadissa
+{ content: "uuden noten teksti", date: "aikaleima" }
+end note
+palvelin->selain: 
+note left of palvelin
+palvelin tallentaa uuden noten
+201 Created
+{"message":"note created"}
+end note

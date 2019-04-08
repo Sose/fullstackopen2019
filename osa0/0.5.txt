@@ -1,0 +1,19 @@
+käyttäjä->selain: 
+note left of selain
+käyttäjä avaa sivun
+https://fullstack-exampleapp.herokuapp.com/spa
+end note
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/notes
+palvelin->selain: Status 200, sivun HTML-koodi
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/main.css
+palvelin->selain: Status 200, sivun CSS
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/spa.js
+palvelin->selain: Status 200, sivun Javascript
+note right of selain
+selain suorittaa javascriptin ja tekee AJAX-pyynnön
+end note
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/data.json
+palvelin->selain: Status 200, JSON-data, jossa on tallennetut notet
+note left of selain
+selain lisää DOMiin JSON-datan perusteella aiemmat notet
+end note

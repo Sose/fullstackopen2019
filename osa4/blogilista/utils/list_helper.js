@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const dummy = blogs => {
+const dummy = () => {
   return 1;
 };
 
@@ -91,7 +91,7 @@ const mostBlogs_ = blogs => {
 // example input is
 // [{ author: 'someone', likes: 14, ...}, { author: 'else', likes: 3, ...}, ...]
 const mostLikes_ = blogs => {
-  
+
   const likesByAuthor = blogs.reduce(
     (acc, { author, likes }) => ({
       ...acc,

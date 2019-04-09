@@ -1,52 +1,10 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
 const app = require('../app');
-
+const { initialBlogs, blogsInDb } = require('./test_helper');
 const api = supertest(app);
 
 const Blog = require('../models/blog');
-
-const initialBlogs = [
-  {
-    title: 'React patterns',
-    author: 'Michael Chan',
-    url: 'https://reactpatterns.com/',
-    likes: 7,
-  },
-  {
-    title: 'Go To Statement Considered Harmful',
-    author: 'Edsger W. Dijkstra',
-    url:
-      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-    likes: 5,
-  },
-  {
-    title: 'Canonical string reduction',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-    likes: 12,
-  },
-  {
-    title: 'First class tests',
-    author: 'Robert C. Martin',
-    url:
-      'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-    likes: 10,
-  },
-  {
-    title: 'TDD harms architecture',
-    author: 'Robert C. Martin',
-    url:
-      'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
-    likes: 0,
-  },
-  {
-    title: 'Type wars',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
-    likes: 12,
-  },
-];
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -61,13 +19,13 @@ describe('GET /api/blogs', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/);
   });
-  
+
   test('there are six blogs', async () => {
     const response = await api.get('/api/blogs');
-    
+
     expect(response.body.length).toBe(6);
   });
-  
+
   /*
   // does Mongo even guarantee the order of documents?
   test('the first blog is about React patterns', async () => {
@@ -101,7 +59,7 @@ describe('POST /api/blogs', () => {
     const response = await api.get('/api/blogs');
 
     const titles = response.body.map(r => r.title);
-    
+
     expect(response.body.length).toBe(initialBlogs.length + 1);
     expect(titles).toContain('Joku blogi');
   });
@@ -132,7 +90,7 @@ describe('POST /api/blogs', () => {
     const newBlog = {
       url: 'http://jotain',
       author: 'Testi Testaaja',
-      likes: 13
+      likes: 13,
     };
 
     await api
@@ -145,7 +103,7 @@ describe('POST /api/blogs', () => {
     const newBlog = {
       title: 'Hieno title',
       author: 'Testi Testaaja',
-      likes: 13
+      likes: 13,
     };
 
     await api
@@ -154,7 +112,49 @@ describe('POST /api/blogs', () => {
       .expect(400);
   });
 });
-  
+
+describe('DELETE /api/blogs', () => {
+  test('succeeds with status code 204 if id is valid', async () => {
+    const blogsAtStart = await blogsInDb();
+    const blogToDelete = blogsAtStart[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+    const blogsAtEnd = await blogsInDb();
+
+    expect(blogsAtEnd.length).toBe(initialBlogs.length - 1);
+
+    const titles = blogsAtEnd.map(r => r.title);
+
+    expect(titles).not.toContain(blogToDelete.title);
+  });
+});
+
+describe('PUT /api/blogs (update)', () => {
+  test('updating likes works', async () => {
+    const newBlog = {
+      title: 'Joku blogi',
+      author: 'Matti Meikäläinen',
+      url: 'http://joku.hieno.url',
+      likes: 5,
+    };
+
+    const blog = new Blog(newBlog);
+    await blog.save();
+
+    const res = await api
+      .put(`/api/blogs/${blog._id}`)
+      .send({ likes: blog.likes + 5 })
+      .expect(200);
+
+    expect(res.body.likes).toBe(blog.likes + 5);
+
+    const updatedBlogInDb = await Blog.findById(blog._id);
+
+    expect(updatedBlogInDb.likes).toBe(blog.likes + 5);
+  });
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });

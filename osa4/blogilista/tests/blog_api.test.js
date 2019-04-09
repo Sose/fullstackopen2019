@@ -51,38 +51,65 @@ const initialBlogs = [
 beforeEach(async () => {
   await Blog.deleteMany({});
 
+  await Blog.create(initialBlogs);
+});
+
+describe('GET /api/blogs', () => {
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+  });
+  
+  test('there are six blogs', async () => {
+    const response = await api.get('/api/blogs');
+    
+    expect(response.body.length).toBe(6);
+  });
+  
   /*
-  initialBlogs.forEach(async (blog) => {
-    let blogObject = new Blog(blog);
-    await blogObject.save();
-  });*/
+  // does Mongo even guarantee the order of documents?
+  test('the first blog is about React patterns', async () => {
+    const response = await api.get('/api/blogs');
+    
+    expect(response.body[0].title).toBe('React patterns');
+  });
+  */
 
-  for(let i=0; i < initialBlogs.length; i++) {
-    let blogObject = new Blog(initialBlogs[i]);
-    await blogObject.save();
-  }
+  test('the identifying field is called id', async () => {
+    const response = await api.get('/api/blogs');
+    expect(response.body[0].id).toBeDefined();
+  });
 });
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/);
+describe.only('POST /api/blogs', () => {
+  test('a valid blog can be added', async () => {
+    const newBlog = {
+      title: 'Joku blogi',
+      author: 'Matti Meikäläinen',
+      url: 'http://joku.hieno.url',
+      likes: 5,
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    const response = await api.get('/api/blogs');
+
+    const titles = response.body.map(r => r.title);
+    
+    expect(response.body.length).toBe(initialBlogs.length + 1);
+    expect(titles).toContain(
+      'Joku blogi'
+    );
+
+  });
 });
-
-test('there are six blogs', async () => {
-  const response = await api.get('/api/blogs');
-
-  expect(response.body.length).toBe(6);
-});
-
-test('the first blog is about React patterns', async () => {
-  const response = await api.get('/api/blogs');
-
-  expect(response.body[0].title).toBe('React patterns');
-});
-
-
+  
 afterAll(() => {
   mongoose.connection.close();
 });

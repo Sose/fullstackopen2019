@@ -5,10 +5,10 @@ const mongoUrl = config.MONGODB_URI;
 mongoose.connect(mongoUrl, { useNewUrlParser: true });
 
 const blogSchema = mongoose.Schema({
-  title: String,
-  author: String,
+  title: { type: String, required: true },
+  author: { type: String, required: true },
   url: String,
-  likes: Number,
+  likes: { type: Number, default: 0 },
 });
 
 blogSchema.set('toJSON', {

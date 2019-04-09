@@ -103,9 +103,42 @@ describe.only('POST /api/blogs', () => {
     const titles = response.body.map(r => r.title);
     
     expect(response.body.length).toBe(initialBlogs.length + 1);
-    expect(titles).toContain(
-      'Joku blogi'
-    );
+    expect(titles).toContain('Joku blogi');
+  });
+
+  test('if likes field is empty, it is set to 0', async () => {
+    const newBlog = {
+      title: 'Joku blogi',
+      author: 'Matti Meikäläinen',
+      url: 'http://joku.hieno.url',
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    let addedBlog = await Blog.find(newBlog);
+
+    expect(addedBlog.length).toBe(1);
+
+    //console.log('addedBlog', addedBlog[0]);
+
+    expect(addedBlog[0].likes).toBe(0);
+  });
+
+  test.only('adding a blog without title fails', async () => {
+    const newBlog = {
+      url: 'http://jotain',
+      author: 'Testi Testaaja',
+      likes: 13
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
 
   });
 });

@@ -16,6 +16,11 @@ blogsRouter.post('/', (request, response) => {
     .save()
     .then(result => {
       response.status(201).json(result);
+    })
+    .catch(error => {
+      if (error.name === 'ValidationError') {
+        return response.status(400).send({ error: error.message });
+      }
     });
 });
 

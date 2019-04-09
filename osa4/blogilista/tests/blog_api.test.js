@@ -83,7 +83,7 @@ describe('GET /api/blogs', () => {
   });
 });
 
-describe.only('POST /api/blogs', () => {
+describe('POST /api/blogs', () => {
   test('a valid blog can be added', async () => {
     const newBlog = {
       title: 'Joku blogi',
@@ -128,7 +128,7 @@ describe.only('POST /api/blogs', () => {
     expect(addedBlog[0].likes).toBe(0);
   });
 
-  test.only('adding a blog without title fails', async () => {
+  test('adding a blog without title fails', async () => {
     const newBlog = {
       url: 'http://jotain',
       author: 'Testi Testaaja',
@@ -139,7 +139,19 @@ describe.only('POST /api/blogs', () => {
       .post('/api/blogs')
       .send(newBlog)
       .expect(400);
+  });
 
+  test('adding a blog without url fails', async () => {
+    const newBlog = {
+      title: 'Hieno title',
+      author: 'Testi Testaaja',
+      likes: 13
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
   });
 });
   

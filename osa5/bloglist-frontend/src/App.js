@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+
 import Blog from './components/Blog';
 import AddBlogForm from './components/AddBlogForm';
 import Notification from './components/Notification';
+import Togglable from './components/Togglable';
 
 import blogService from './services/blogs';
 import loginService from './services/login';
@@ -61,7 +63,7 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogUser');
   };
 
-  const onNewBlog = (newBlog) => {
+  const addNewBlog = (newBlog) => {
     // console.log('App: onNewBlog', newBlog);
     const newBlogs = [...blogs].concat(newBlog);
     setBlogs(newBlogs);
@@ -69,6 +71,16 @@ const App = () => {
       message: `a new blog ${newBlog.title} by ${newBlog.author} added`,
       type: 'notification'
     });
+  };
+
+  const updateBlogLikes = (newBlog) => {
+    //console.log('App: updateBlogLikes', newBlog);
+
+    const blogToUpdateIndex = blogs.findIndex(blog => blog.id === newBlog.id);
+    const newBlogs = [...blogs];
+    newBlogs[blogToUpdateIndex].likes = newBlog.likes;
+    setBlogs(newBlogs);
+
   };
 
   const showNotification = (notification, length = 3000) => {
@@ -82,47 +94,47 @@ const App = () => {
   const pageToShow = user === null ? (
     <div>
       <h2>Kirjaudu</h2>
-
-      <form onSubmit={handleLogin}>
-        <div>
+      <Togglable buttonLabel='login'>
+        <form onSubmit={handleLogin}>
+          <div>
           käyttäjätunnus
-          <input
-            type="text"
-            value={username}
-            name="Username"
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </div>
-        <div>
+            <input
+              type="text"
+              value={username}
+              name="Username"
+              onChange={({ target }) => setUsername(target.value)}
+            />
+          </div>
+          <div>
           salasana
-          <input
-            type="password"
-            value={password}
-            name="Password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </div>
-        <button type="submit">kirjaudu</button>
-      </form>
+            <input
+              type="password"
+              value={password}
+              name="Password"
+              onChange={({ target }) => setPassword(target.value)}
+            />
+          </div>
+          <button type="submit">kirjaudu</button>
+        </form>
+      </Togglable>
     </div>
   ) : (
     <div>
-      <h2>blogs</h2>
       <div>{user.name} logged in</div>
       <button onClick={logoutButtonClick} >log out</button>
       <br />
 
-      <AddBlogForm onNewBlog={onNewBlog} />
+      <AddBlogForm addNewBlog={addNewBlog} />
 
-      {blogs.map(blog => (
-        <Blog key={blog.id} blog={blog} />
+      {blogs.sort((b1, b2) => b2.likes - b1.likes).map(blog => (
+        <Blog key={blog.id} blog={blog} updateBlogLikes={updateBlogLikes} />
       ))}
     </div>
   );
 
   return (
     <div>
-      <h1>Muistiinpanot</h1>
+      <h1>blogs</h1>
 
       <Notification notification={notification} />
 

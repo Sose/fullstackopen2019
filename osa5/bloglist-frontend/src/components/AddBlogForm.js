@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import blogService from '../services/blogs';
 
-const AddBlogForm = ({ onNewBlog }) => {
+const AddBlogForm = ({ addNewBlog }) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
@@ -17,7 +17,7 @@ const AddBlogForm = ({ onNewBlog }) => {
       };
 
       const response = await blogService.create(newBlog);
-      onNewBlog(response);
+      addNewBlog(response);
     } catch (exception) {
       console.log('exception in handleBlogSubmit', exception);
     }

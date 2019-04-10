@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import blogService from '../services/blogs';
 
-const Blog = ({ blog, updateBlogLikes }) => {
+const Blog = ({ blog, updateBlogLikes, removeBlog, user }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -17,11 +17,15 @@ const Blog = ({ blog, updateBlogLikes }) => {
     setShowAll(!showAll);
   };
 
-  const onLikeClick = async () => {
-    const updatedBlog = {...blog, likes: blog.likes + 1};
-    const response = await blogService.update(updatedBlog);
-    updateBlogLikes(response);
+  const onLikeClick = () => {
+    updateBlogLikes(blog);
   };
+
+  const onRemoveClick = async () => {
+    removeBlog(blog);
+  };
+
+  const showDeleteButton = blog.user ? blog.user.username === user.username : false;
 
   if (showAll) {
     return (
@@ -32,6 +36,9 @@ const Blog = ({ blog, updateBlogLikes }) => {
         <a href={blog.url}>{blog.url}</a>
         <div>{blog.likes} likes <button onClick={onLikeClick}>like</button></div>
         { blog.user ? <div>added by {blog.user.name}</div> : null }
+        <div>
+          {showDeleteButton && <button onClick={onRemoveClick}>remove</button>}
+        </div>
       </div>
     );
   } else {

@@ -57,61 +57,38 @@ blogsRouter.post('/', async (request, response, next) => {
     */
 });
 
-blogsRouter.delete('/:id', async (request, response, next) => {
-  const body = request.body;
-  
-  const token = request.token;
-
-  try {
-    const decodedToken = jwt.verify(token, process.env.SECRET);
-    if (!token || !decodedToken.id) {
-      return response.status(401).json({ error: 'token missing or invalid' });
-    }
-
-    //const user = await User.findById(body.userId);
-    const blog = await Blog.findById(body.id);
-
-    if (blog.user.toString() !== body.userId.toString()) {
-      return response.status(401).end();
-    }
-
-    await blog.delete();
-
-  } catch(exception) {
-    next(exception);
+blogsRouter.delete('/:id', async (request, response) => {
+  if (!request.token) {
+    return response.status(401).json({ error: 'token missing' });
   }
-  
-  /*
-  Blog.findByIdAndDelete(req.params.id)
-    .then(() => {
-      res.status(204).end();
-    })
-    .catch(err => {
-      console.log('error while deleting', err);
-    });
-  */
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+
+  const blog = await Blog.findById(request.params.id);
+
+  if (blog.user.toString() === decodedToken.id) {
+    await Blog.findByIdAndRemove(request.params.id);
+    response.status(204).end();
+  } else {
+    response.status(404).end();
+  }
 });
 
-blogsRouter.put('/:id', (req, res) => {
-  const body = req.body;
-  const id = req.params.id;
+blogsRouter.put('/:id', async (request, response) => {
+  const { author, title, url,likes } = request.body;
 
-  const updatedPerson = {
-    author: body.author,
-    title: body.title,
-    url: body.url,
-    likes: body.likes,
+  const blog = {
+    author, title, url, likes,
   };
 
-  Blog.findByIdAndUpdate(id, updatedPerson, { new: true })
-    .then(updatedBlog => {
-      const purkkaa = new Blog(updatedBlog).toJSON();
-      res.status(200).json(purkkaa);
-    })
-    .catch(err => {
-      console.log('error in findByIdAndUpdate', err);
-      res.status(400).send({ err });
-    });
+  const updatedNote = await Blog
+    .findByIdAndUpdate(request.params.id, blog, { new: true });
+      
+  response.json(updatedNote.toJSON());
 });
 
 module.exports = blogsRouter;

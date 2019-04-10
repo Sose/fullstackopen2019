@@ -73,14 +73,26 @@ const App = () => {
     });
   };
 
-  const updateBlogLikes = (newBlog) => {
-    //console.log('App: updateBlogLikes', newBlog);
-
-    const blogToUpdateIndex = blogs.findIndex(blog => blog.id === newBlog.id);
+  const updateBlogLikes = async (blog) => {
+    //console.log('App: updateBlogLikes', blog);
+    const updatedBlog = {...blog, likes: blog.likes + 1};
+    const response = await blogService.update(updatedBlog);
+    const blogToUpdateIndex = blogs.findIndex(blog => blog.id === response.id);
     const newBlogs = [...blogs];
-    newBlogs[blogToUpdateIndex].likes = newBlog.likes;
+    newBlogs[blogToUpdateIndex].likes = response.likes;
     setBlogs(newBlogs);
+  };
 
+  const removeBlog = async ({ id, title }) => {
+    const response = await blogService.remove({ id });
+    console.log('removed', response);
+    const newBlogs = blogs.filter(blog => blog.id !== id);
+    console.log('newBlogs', newBlogs);
+    setBlogs(newBlogs);
+    showNotification({
+      message: `removed blog ${title}`,
+      type: 'notification'
+    }, 3000);
   };
 
   const showNotification = (notification, length = 3000) => {
@@ -127,7 +139,7 @@ const App = () => {
       <AddBlogForm addNewBlog={addNewBlog} />
 
       {blogs.sort((b1, b2) => b2.likes - b1.likes).map(blog => (
-        <Blog key={blog.id} blog={blog} updateBlogLikes={updateBlogLikes} />
+        <Blog key={blog.id} blog={blog} user={user} updateBlogLikes={updateBlogLikes} removeBlog={removeBlog} />
       ))}
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import { useField } from './hooks';
+
 import Blog from './components/Blog';
 import AddBlogForm from './components/AddBlogForm';
 import Notification from './components/Notification';
@@ -17,8 +19,8 @@ const App = () => {
   });
 
   const [user, setUser] = useState(null);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const username = useField('text');
+  const password = useField('password');
 
   useEffect(() => {
     blogService.getAll().then(blogs => setBlogs(blogs));
@@ -35,11 +37,12 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    console.log('logging in with', username, password);
+    console.log('logging in with', username.value, password.value);
 
     try {
       const user = await loginService.login({
-        username, password,
+        username: username.value, 
+        password: password.value,
       });
       
       window.localStorage.setItem(
@@ -47,8 +50,8 @@ const App = () => {
       );
 
       setUser(user);
-      setUsername('');
-      setPassword('');
+      username.reset();
+      password.reset();
       blogService.setToken(user.token);
     } catch(exception) {
       showNotification({
@@ -110,21 +113,11 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
           käyttäjätunnus
-            <input
-              type="text"
-              value={username}
-              name="Username"
-              onChange={({ target }) => setUsername(target.value)}
-            />
+            <input {...username } reset={undefined} />
           </div>
           <div>
           salasana
-            <input
-              type="password"
-              value={password}
-              name="Password"
-              onChange={({ target }) => setPassword(target.value)}
-            />
+            <input { ...password } reset={undefined} />
           </div>
           <button type="submit">kirjaudu</button>
         </form>

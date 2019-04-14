@@ -29,12 +29,12 @@ const Blog = ({ blog, updateBlogLikes, removeBlog, user }) => {
   if (showAll) {
     return (
       <div style={blogStyle}>
-        <div onClick={onBlogTitleClick}>
+        <div className="blogTitleAndAuthor" onClick={onBlogTitleClick}>
           {blog.title} by {blog.author} 
         </div>
         <a href={blog.url}>{blog.url}</a>
         <div>{blog.likes} likes <button onClick={onLikeClick}>like</button></div>
-        { blog.user ? <div>added by {blog.user.name}</div> : null }
+        { blog.user && <div>added by {blog.user.name}</div> }
         <div>
           {showDeleteButton && <button onClick={onRemoveClick}>remove</button>}
         </div>
@@ -42,8 +42,8 @@ const Blog = ({ blog, updateBlogLikes, removeBlog, user }) => {
     );
   } else {
     return (
-      <div onClick={onBlogTitleClick}>
-        {blog.title}
+      <div className="blogTitleAndAuthor" onClick={onBlogTitleClick}>
+        {blog.title} by {blog.author}
       </div>
     );
   }

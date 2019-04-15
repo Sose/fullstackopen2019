@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { newAnecdote } from '../reducers/anecdoteReducer';
+import { showNotification, hideNotification } from '../reducers/notificationReducer';
 
 const AnecdoteForm = props => {
   const addNew = e => {
@@ -11,6 +12,8 @@ const AnecdoteForm = props => {
     props.store.dispatch(newAnecdote(anecdote));
 
     e.target.newAnecdote.value = '';
+    props.store.dispatch(showNotification(`added new anecdote ${anecdote}`));
+    setTimeout(() => { props.store.dispatch(hideNotification()); }, 5000);
   };
 
   return (

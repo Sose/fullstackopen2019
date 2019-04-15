@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import { newAnecdote } from '../reducers/anecdoteReducer';
 import { showNotification, hideNotification } from '../reducers/notificationReducer';
@@ -9,11 +10,11 @@ const AnecdoteForm = props => {
     const anecdote = e.target.newAnecdote.value;
     console.log('adding new', anecdote);
 
-    props.store.dispatch(newAnecdote(anecdote));
+    props.newAnecdote(anecdote);
 
     e.target.newAnecdote.value = '';
-    props.store.dispatch(showNotification(`added new anecdote ${anecdote}`));
-    setTimeout(() => { props.store.dispatch(hideNotification()); }, 5000);
+    props.showNotification(`added new anecdote ${anecdote}`);
+    setTimeout(() => { props.hideNotification(); }, 5000);
   };
 
   return (
@@ -29,4 +30,16 @@ const AnecdoteForm = props => {
   );
 };
 
-export default AnecdoteForm;
+const mapStateToProps = (state) => {
+  return {
+    
+  };
+};
+
+const mapDispatchToProps = {
+  newAnecdote, showNotification, hideNotification
+};
+
+const ConnectedAnecdoteForm = connect(mapStateToProps, mapDispatchToProps)(AnecdoteForm);
+
+export default ConnectedAnecdoteForm;

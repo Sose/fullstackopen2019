@@ -9,21 +9,21 @@ const filterReducer = (state = '', action) => {
   }
 };
 
-const showNotification = (message) => {
-  return {
-    type: 'SHOW_NOTIFICATION',
-    data: {
-      message
-    }
-  };
-};
+const showNotification = (message, seconds) => {
+  return async (dispatch) => {
+    dispatch({
+      type: 'SHOW_NOTIFICATION',
+      data: { message }
+    });
 
-const hideNotification = () => {
-  return {
-    type: 'HIDE_NOTIFICATION'
+    setTimeout(() => {
+      dispatch({
+        type: 'HIDE_NOTIFICATION'
+      });
+    }, seconds * 1000);
   };
 };
 
 export default filterReducer;
 
-export { showNotification, hideNotification };
+export { showNotification };

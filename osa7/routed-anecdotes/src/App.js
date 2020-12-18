@@ -5,6 +5,7 @@ import {
   Route,
   Link,
   useParams,
+  useHistory,
 } from 'react-router-dom'
 
 const Menu = () => {
@@ -92,6 +93,8 @@ const CreateNew = (props) => {
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
 
+  const history = useHistory()
+
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
@@ -100,6 +103,11 @@ const CreateNew = (props) => {
       info,
       votes: 0,
     })
+    props.setNotification(`a new anecdote ${content} created`)
+    setTimeout(() => {
+      props.setNotification('')
+    }, 10 * 1000)
+    history.push('/')
   }
 
   return (
@@ -154,6 +162,8 @@ const App = () => {
     },
   ])
 
+  let history = useHistory()
+
   const [notification, setNotification] = useState('')
 
   const addNew = (anecdote) => {
@@ -179,9 +189,10 @@ const App = () => {
       <h1>Software anecdotes</h1>
       <Router>
         <Menu />
+        <p>{notification}</p>
         <Switch>
           <Route path="/create">
-            <CreateNew addNew={addNew} />
+            <CreateNew addNew={addNew} setNotification={setNotification} />
           </Route>
           <Route path="/about">
             <About />

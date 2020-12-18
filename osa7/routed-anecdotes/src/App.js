@@ -8,6 +8,25 @@ import {
   useHistory,
 } from 'react-router-dom'
 
+const useField = (type) => {
+  const [value, setValue] = useState('')
+
+  const onChange = (event) => {
+    setValue(event.target.value)
+  }
+
+  function reset() {
+    setValue('')
+  }
+
+  return {
+    type,
+    value,
+    onChange,
+    reset,
+  }
+}
+
 const Menu = () => {
   const padding = {
     paddingRight: 5,
@@ -46,8 +65,9 @@ const Anecdote = ({ anecdoteById }) => {
 
   return (
     <div>
-      <h2>Anecdote</h2>
-      <div>{anecdote.content}</div>
+      <h2>{anecdote.content}</h2>
+      <div>has {anecdote.votes} votes</div>
+      <div>for more info see {anecdote.info}</div>
     </div>
   )
 }
@@ -89,25 +109,36 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  let { reset: resetC, ...content } = useField('text')
+  let { reset: resetA, ...author } = useField('text')
+  let { reset: resetI, ...info } = useField('text')
+
+  const resetContent = resetC.bind(content)
+  const resetAuthor = resetA.bind(author)
+  const resetInfo = resetI.bind(info)
 
   const history = useHistory()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0,
     })
-    props.setNotification(`a new anecdote ${content} created`)
+    props.setNotification(`a new anecdote ${content.value} created`)
     setTimeout(() => {
       props.setNotification('')
     }, 10 * 1000)
     history.push('/')
+  }
+
+  const resetAll = (event) => {
+    event.preventDefault()
+    resetContent()
+    resetAuthor()
+    resetInfo()
   }
 
   return (
@@ -116,29 +147,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <input {...content} />
         </div>
         <div>
           author
-          <input
-            name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
+          <input {...author} />
         </div>
         <div>
           url for more info
-          <input
-            name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
-          />
+          <input {...info} />
         </div>
         <button>create</button>
+        <button onClick={resetAll}>reset</button>
       </form>
     </div>
   )
@@ -161,8 +181,6 @@ const App = () => {
       id: '2',
     },
   ])
-
-  let history = useHistory()
 
   const [notification, setNotification] = useState('')
 

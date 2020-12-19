@@ -1,4 +1,4 @@
-  
+
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -20,10 +20,30 @@ const useField = (type) => {
 const useResource = (baseUrl) => {
   const [resources, setResources] = useState([])
 
-  // ...
+  useEffect(() => {
+    const restURL = baseUrl
+    axios
+      .get(restURL)
+      .then((response) => {
+        const data = response.data
+        console.log(data)
+        setResources(data)
+      })
+      .catch((error) => {
+        console.log('get-error', error)
+      })
+  }, [baseUrl])
 
   const create = (resource) => {
-    // ...
+    const url = `${baseUrl}/`
+    axios
+      .post(url, resource)
+      .then((response) => {
+        const data = response.data
+        setResources([...resources, data])
+      }).catch((error) => {
+        console.log('create-error', error)
+      })
   }
 
   const service = {
@@ -47,10 +67,10 @@ const App = () => {
     event.preventDefault()
     noteService.create({ content: content.value })
   }
- 
+
   const handlePersonSubmit = (event) => {
     event.preventDefault()
-    personService.create({ name: name.value, number: number.value})
+    personService.create({ name: name.value, number: number.value })
   }
 
   return (
@@ -64,7 +84,7 @@ const App = () => {
 
       <h2>persons</h2>
       <form onSubmit={handlePersonSubmit}>
-        name <input {...name} /> <br/>
+        name <input {...name} /> <br />
         number <input {...number} />
         <button>create</button>
       </form>

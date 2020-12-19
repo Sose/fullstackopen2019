@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Mielenkiintoista",
+  "author": "Matti Meikäläinen",
+  "url": "http://google.com",
+  "likes": 123,
+  "userId": "5cace4833fa8f32634c7a8cd"
+}
